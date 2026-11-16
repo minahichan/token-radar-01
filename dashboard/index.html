@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Radar — pre-token protocols ranked by implied value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<a class="skip" href="#board">Skip to the board</a>
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Token Radar &middot; the launch board</p>
+    <h1>Which pre-token protocol is worth farming next?</h1>
+    <p class="lede">Every protocol DefiLlama tracks that records no token yet, ranked by what its
+    launch would be worth &mdash; and what to do about it before it happens. The implied value is
+    this radar&rsquo;s own claim, computed from the snapshot&rsquo;s figures alone.</p>
+    <dl class="stats" id="stats"></dl>
+  </div>
+</header>
+<main class="wrap" id="board" tabindex="-1">
+  <nav class="tabs" aria-label="Views">
+    <button type="button" data-tab="board" class="active" aria-pressed="true">The board</button>
+    <button type="button" data-tab="live" aria-pressed="false">Already trading</button>
+    <button type="button" data-tab="how" aria-pressed="false">How it works</button>
+  </nav>
+
+  <section id="view-board" class="view">
+    <div class="controls" role="search">
+      <label>Search <input id="q" type="search" placeholder="Protocol name or slug&hellip;" autocomplete="off"></label>
+      <label>Category
+        <select id="category"><option value="all">All categories</option></select>
+      </label>
+      <label>Chain
+        <select id="chain"><option value="all">All chains</option></select>
+      </label>
+      <label>Sort by
+        <select id="sort">
+          <option value="implied">Implied value</option>
+          <option value="tvl">TVL</option>
+          <option value="growth">7-day growth</option>
+          <option value="age">Age (oldest first)</option>
+        </select>
+      </label>
+      <label class="check"><input id="watchlist" type="checkbox"> Watchlist only</label>
+    </div>
+    <p class="count" id="count" aria-live="polite"></p>
+    <div class="tablewrap">
+      <table id="table">
+        <thead>
+          <tr>
+            <th class="num">#</th>
+            <th>Protocol</th>
+            <th class="num">TVL</th>
+            <th class="num">7d</th>
+            <th class="num">Age</th>
+            <th class="num">Implied value</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p class="note">Implied values are modelled from TVL, 7-day growth, tenure and chain reach
+    against the market capitalisations live-token protocols in the same category actually trade at.
+    &ldquo;Records no token&rdquo; means DefiLlama&rsquo;s record carries no token for the protocol &mdash;
+    it is not proof that none exists.</p>
+  </section>
+
+  <section id="view-live" class="view" hidden>
+    <h2>Already trading &mdash; not a launch to farm</h2>
+    <p>These protocols already have a token that trades, so the board shows the market&rsquo;s own
+    capitalisation for them and never a modelled value. They are here so the board&rsquo;s separation
+    is visible: pre-token on the board, trading here.</p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Protocol</th><th class="num">TVL</th><th class="num">Market cap</th><th class="num">7d</th></tr>
+        </thead>
+        <tbody id="live-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="view-how" class="view" hidden>
+    <h2>How the radar works</h2>
+    <h3>The value model</h3>
+    <p>For every pre-token protocol the radar computes:</p>
+    <pre>implied = TVL &times; comparable &times; growth &times; tenure &times; breadth</pre>
+    <ul>
+      <li><strong>Comparable</strong> &mdash; the median market-cap / TVL of the live-token protocols
+      in the same category (at least 3 of them, else the global median), clamped to 0.08&ndash;1.20.
+      A lending protocol is priced the way lending protocols trade; a DEX the way DEXes trade.</li>
+      <li><strong>Growth</strong> &mdash; 1 + (7-day TVL change, clamped to &minus;50%&hellip;+150%) &times; 0.6.</li>
+      <li><strong>Tenure</strong> &mdash; 0.80 + (days listed, capped at 4 years) / 4 years &times; 0.40.
+      A protocol that has run longer with no token has more to launch.</li>
+      <li><strong>Breadth</strong> &mdash; 1 + 0.02 per extra chain, up to 5 extra chains.</li>
+    </ul>
+    <p>Nothing is hardcoded by name: the same four factors score every row, and the detail view
+    shows each factor for the protocol you are reading, recomputed in this page from the same figures.</p>
+    <h3>The watchlist</h3>
+    <p>The snapshot&rsquo;s watchlist is the floor, never the ceiling: protocols with at least $50M of
+    TVL that record no token and are not a wrapped, staked or bridged product of a token that
+    already trades. The board carries all 40 of them, plus every other rankable pre-token protocol
+    below the floor &mdash; the early ones the radar exists to find.</p>
+    <h3>The farm plan</h3>
+    <p>Every row carries six steps: set up a fresh wallet, take the category&rsquo;s main position with
+    a stated amount of capital, repeat one qualifying action a week, hold long enough to be counted
+    in more than one snapshot, check the protocol&rsquo;s own points page before withdrawing, and keep
+    a farm log with an exit plan. Each step states what it costs and how long it takes.</p>
+    <h3>What this is not</h3>
+    <p>The radar does not predict whether or when a token is issued. It prices what a launch would
+    be worth if the protocol&rsquo;s record stayed as it is, so a reader can decide where to spend
+    their farming time. Data: a sealed DefiLlama snapshot, fetched once and frozen for every run.</p>
+  </section>
+</main>
+
+<div class="drawer" id="drawer" hidden role="dialog" aria-modal="true" aria-labelledby="detail-title">
+  <div class="drawer-card">
+    <button type="button" class="close" id="close-detail" aria-label="Close detail view">&times;</button>
+    <div id="detail"></div>
+  </div>
+</div>
+
+<footer class="wrap">
+  <p>Token Radar &middot; built for the make.fun token launch radar bounty &middot; data: DefiLlama
+  protocol snapshot, frozen at the date shown above &middot; implied values are this radar&rsquo;s own
+  claim, never financial advice.</p>
+</footer>
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
